@@ -68,6 +68,27 @@ namespace larg4 {
       recomb = fRecombA / (1. + dEdx * scaled_recombk / EFieldStep);
     }
 
+    /// Print a recomb as a fuction of Y-X at Z=348 cm
+    for (int i=-360; i<360; i++) {
+      for (int j=0; j<600; j++) {
+          float Z = 348; // cm
+          float X = i;
+          float Y = j;
+
+          double efield = detProp.Efield(); 
+
+          geo::Point_t tmp(X, Y, Z);
+          auto const eFieldOffsets = fSCE->GetEfieldOffsets(tmp);
+          double EFieldStep = std::hypot( efield + efield * eFieldOffsets.X(), efield * eFieldOffsets.Y(), efield * eFieldOffsets.Z());
+          dEdx = 2.5;
+          double const scaled_modboxb = fModBoxB / detProp.Density(detProp.Temperature());
+          double const Xi = scaled_modboxb * dEdx / EFieldStep;
+          recomb = log(fModBoxA + Xi) / Xi;
+          std::cout << X << " " << Y << " " << recomb << std::endl;
+      }
+    }
+    // end print
+
     // 1.e-3 converts fEnergyDeposit to GeV
     auto const numIonElectrons = fGeVToElectrons * 1.e-3 * e * recomb;
 
